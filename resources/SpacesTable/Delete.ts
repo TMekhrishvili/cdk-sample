@@ -4,10 +4,11 @@ import {
   APIGatewayProxyResult,
   Context,
 } from "aws-lambda";
-import { v4 } from "uuid";
 
 const dbClient = new DynamoDB.DocumentClient();
-const TABLE_NAME = process.env.TABLE_NAME;
+const TABLE_NAME = process.env.TABLE_NAME as string;
+const PRIMARY_KEY = process.env.PRIMARY_KEY as string;
+
 async function handler(
   event: APIGatewayProxyEvent,
   context: Context
@@ -17,24 +18,24 @@ async function handler(
     body: "",
   };
 
-  let item =
-    typeof event.body == "object" ? event.body : JSON.parse(event.body);
-  item.spaceId = v4();
+  const spaceId = event.queryStringParameters?.[PRIMARY_KEY];
 
   try {
-    await dbClient
-      .put({
-        TableName: TABLE_NAME!,
-        Item: item,
-      })
-      .promise();
-
-    result.body = `item was created, id: ${item.spaceId}`;
+    if (spaceId) {
+      await dbClient
+        .delete({
+          TableName: TABLE_NAME,
+          Key: {
+            [PRIMARY_KEY]: spaceId,
+          },
+        })
+        .promise();
+    }
+    result.body = "item was successfully deleted";
   } catch (error: any) {
     result.statusCode = 500;
     result.body = error.message;
   }
-
   return result;
 }
 
