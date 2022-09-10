@@ -1,3 +1,3 @@
-import { handler } from "../resources/SpacesTable/Create";
+import { handler } from "../resources/SpacesTable/Read";
 
 handler({} as any, {} as any);

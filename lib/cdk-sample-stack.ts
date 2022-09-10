@@ -16,12 +16,14 @@ export class CdkSampleStack extends cdk.Stack {
   };
   private spaceTable = new GenericTable(this, this.props, {
     create: "Create",
+    read: "Read",
   } as LambdaPath);
 
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
     // lambda-api integration
+    this.api.root.addMethod("GET", this.spaceTable.readLambdaIntegration);
     this.api.root.addMethod("POST", this.spaceTable.createLambdaIntegration);
   }
 }
