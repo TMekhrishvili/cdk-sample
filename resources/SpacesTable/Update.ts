@@ -25,23 +25,24 @@ async function handler(
   const requestBodyValue = requestBody[requestBodyKey];
 
   try {
-    const updatedResult = dbClient.update({
-      TableName: TABLE_NAME,
-      Key: {
-        [PRIMARY_KEY]: spaceId,
-      },
-      UpdateExpression: "set #zzzNew = :new",
-      ExpressionAttributeValues: {
-        ":new": requestBodyValue,
-      },
-      ExpressionAttributeNames: {
-        "#zz": requestBodyKey,
-      },
-      ReturnValues: "UPDATED_NEW",
-    });
-    console.log(updatedResult);
+    const updatedResult = await dbClient
+      .update({
+        TableName: TABLE_NAME,
+        Key: {
+          [PRIMARY_KEY]: spaceId,
+        },
+        UpdateExpression: "set #zzzNew = :new",
+        ExpressionAttributeValues: {
+          ":new": requestBodyValue,
+        },
+        ExpressionAttributeNames: {
+          "#zzzNew": requestBodyKey,
+        },
+        ReturnValues: "UPDATED_NEW",
+      })
+      .promise();
 
-    result.body = "item was updated";
+    result.body = JSON.stringify(updatedResult);
   } catch (error: any) {
     result.statusCode = 500;
     result.body = error.message;
